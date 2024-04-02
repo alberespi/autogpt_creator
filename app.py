@@ -1,21 +1,28 @@
+import os
 import streamlit as st
 from langchain.llms import OpenAI
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain, SequentialChain
 from langchain.memory import ConversationBufferMemory
 from langchain.utilities import WikipediaAPIWrapper
+from langchain_openai import ChatOpenAI
+from transformers import T5ForConditionalGeneration
 from dotenv import load_dotenv
 
 load_dotenv()
 
+api_key = os.getenv('HUGGING_FACE_KEY')
+
+
+
 # App framework
-st.title('Youtube GPT Creator')
+st.title('AutoGPT Creator')
 prompt = st.text_input('Insert your prompt here:')
 
 # Prompt templates
 title_template = PromptTemplate(
     input_variables=['topic'],
-    template='write me a youtube title about {topic}'
+    template='Write me a youtube title about {topic}'
 )
 
 script_template = PromptTemplate(
@@ -28,7 +35,9 @@ title_memory = ConversationBufferMemory(input_key='topic', memory_key='chat_hist
 script_memory = ConversationBufferMemory(input_key='title', memory_key='chat_history')
 
 # Llms
-llm = OpenAI(temperature=0.9)
+llm = ChatOpenAI(model="gpt-3.5-turbo-1106", temperature=0)
+#llm = T5ForConditionalGeneration.from_pretrained("google/flan-t5-xl")
+#llm = GooglePalm()
 title_chain = LLMChain(
     llm=llm,
     prompt=title_template,
